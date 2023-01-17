@@ -10,19 +10,6 @@ const db = makeDb({
 });
 
 // login as an administrator
-// router.get("/signin", (req, res) => {
-//   let sql = `SELECT regions`;
-//   let regions;
-//   db.query(sql, (err, result) => {
-//     if (err) {
-//       res.redirect("/admin");
-//       throw err;
-//     }
-//     regions = JSON.parse(JSON.stringify(result));
-//   });
-//   res.render("admin/signInTemplate", { data: { regions } });
-// });
-
 router.get("/signin", async (req, res) => {
   let sql = `SELECT region FROM regions ORDER BY regions.region ASC `;
   try {
