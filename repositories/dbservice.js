@@ -38,13 +38,54 @@ export class dbService {
     }
   }
 
+  //insert multi "row data" results into an array inside an object - >object{array:[result]}
+  async multiResultObject(sql, object, variable) {
+    const obj = await this.queryHandling(sql);
+    for (const row in obj) {
+      for (const key in obj[row]) {
+        object[variable].push(obj[row][key]);
+      }
+    }
+  }
+
+  // insert into an array([arr]) all results from the query wtih the key([variable])
+  async multiResultArray(sql, variable) {
+    const arr = [];
+    const obj = await this.queryHandling(sql);
+    for (const key in obj) {
+      arr.push(obj[key][variable]);
+    }
+    return arr;
+  }
+
+  // let sql = `SELECT nazwa FROM powiaty`;
+  // const counties = [];
+  // const result = await this.queryHandling(sql);
+  // for (const key in result) {
+  //   console.log(result[key]["nazwa"]);
+  // }
+
   // QUERIES
 
   // returns admin_id by provided email
   async getAdminByEmail(email) {
-    let sql = `SELECT 'admin_id' FROM 'admins' WHERE 'email' = '${email}'`;
+    let sql = `SELECT admin_id FROM admins WHERE email = '${email}'`;
     this.queryHandling(sql);
   }
+
+  // get guide by email
+  async getGuideByEmail(email) {
+    let sql = `SELECT guide_id FROM guides WHERE email = '${email}'`;
+    this.queryHandling(sql);
+  }
+
+  // delete all guide details by his id
+  // async deleteGuide(id){
+
+  // }
+
+  // GUIDE CREATION
+  async createGuide() {}
 
   // returns guide_id by provided filters
   async getGuideBy(name = "", lang = "", city = "", region = "") {
@@ -118,16 +159,6 @@ export class dbService {
       cities: [],
     };
 
-    // tool to insert multi "row data" results into an array insine an object
-    const multiResult = async (sql, variable) => {
-      let obj = await this.queryHandling(sql);
-      for (const row in obj) {
-        for (const key in obj[row]) {
-          guide[variable].push(obj[row][key]);
-        }
-      }
-    };
-
     // data (single object)
     let data = await this.queryHandling(queries["gdata"]);
     data = data[0];
@@ -136,10 +167,30 @@ export class dbService {
     }
 
     // languages, regions, cities
-    await multiResult(queries["glang"], "langs");
-    await multiResult(queries["greg"], "regs");
-    await multiResult(queries["gcities"], "cities");
+    await this.multiResult(queries["glang"], guide, "langs");
+    await this.multiResult(queries["greg"], guide, "regs");
+    await this.multiResult(queries["gcities"], guide, "cities");
 
     return guide;
+  }
+
+  // GUIDE INTERFACE
+  // change name
+  // change email
+  // change password
+  // change desc
+  // change regions
+  // change cities
+
+  // OTHERS
+  async getCounties(text) {
+    let sql = `SELECT nazwa FROM powiaty WHERE nazwa LIKE '%${text}%' LIMIT 5`;
+    const counties = await this.multiResultArray(sql, "nazwa");
+    return counties;
+  }
+  async getCities(text) {
+    let sql = `SELECT nazwa FROM miasta WHERE nazwa LIKE '%${text}%' LIMIT 5`;
+    const cities = await this.multiResultArray(sql, "nazwa");
+    return cities;
   }
 }
