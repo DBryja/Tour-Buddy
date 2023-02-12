@@ -1,6 +1,7 @@
 import mysql from "mysql";
 import dotenv from "dotenv";
 import { response } from "express";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 let instance = null;
@@ -58,6 +59,18 @@ export class dbService {
     return arr;
   }
 
+  async decryptPassword(password, hashedPassword) {
+    bcrypt.compare(password, hashedPassword, function (err, isMatch) {
+      return isMatch;
+    });
+  }
+
+  hashPassword = (pswd) => {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(pswd, salt);
+    return hash;
+  };
+
   // let sql = `SELECT nazwa FROM powiaty`;
   // const counties = [];
   // const result = await this.queryHandling(sql);
@@ -85,7 +98,21 @@ export class dbService {
   // }
 
   // GUIDE CREATION
-  async createGuide() {}
+  async createGuide(email, password, price, [regions], [cities]) {
+    // create user inside guides table
+    const hashedPswd = this.hashPassword(password);
+    let sql = `INSERT INTO guides(email, password) VALUES ("${email}","${hashedPswd}")`;
+    this.queryHandling(sql);
+    // get an id of the new created guide
+    // const id = await this.getGuideByEmail(email);
+    // insert
+  }
+  async validateLogin(table, email, pswd) {
+    let sql = `Select password FROM ${table} WHERE email = "${email}"`;
+    const hashedPassword = (await this.queryHandling(sql))[0].password;
+    const isMatch = bcrypt.compareSync(pswd, hashedPassword);
+    console.log(isMatch);
+  }
 
   // returns guide_id by provided filters
   async getGuideBy(name = "", lang = "", city = "", region = "") {
@@ -189,8 +216,18 @@ export class dbService {
     return counties;
   }
   async getCities(text) {
-    let sql = `SELECT nazwa FROM miasta WHERE nazwa LIKE '%${text}%' LIMIT 5`;
+    let sql = `SELECT nazwa FROM miasta WHERE nazwa LIKE '%${text}%' LIMIT 10`;
     const cities = await this.multiResultArray(sql, "nazwa");
     return cities;
+  }
+  async getCounty(name) {
+    let sql = `SELECT ID FROM powiaty WHERE nazwa = "${name}"`;
+    const id = this.queryHandling(sql);
+    return id[0];
+  }
+  async getCity(name) {
+    let sql = `SELECT ID FROM miasta WHERE nazwa = "${name}"`;
+    const id = this.queryHandling(sql);
+    return id[0];
   }
 }

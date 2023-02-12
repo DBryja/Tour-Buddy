@@ -1,5 +1,7 @@
-import express, { response } from "express";
+import express from "express";
 import { dbService } from "../../repositories/dbservice.js";
+import { body, validationResult } from "express-validator";
+import { guideValidation, requireEmail, validateRequestSchema } from "../../middleware/validators.js";
 
 const router = express.Router();
 // login as a guide
@@ -17,8 +19,8 @@ const router = express.Router();
 
 router.get("/signup", async (req, res) => {
   const db = dbService.getDbServiceInstance();
-  const counties = await db.getCounties();
-  const cities = await db.getCities();
+  // db.createGuide("test@test.com", "test");
+  // db.validateLogin("guides", "test@test.com", "test");
 
   res.render("user/signupTemplate.ejs");
 });
@@ -31,7 +33,6 @@ router.get("/get_counties", async function (req, res) {
     res.send(result);
   }
 });
-
 router.get("/get_cities", async function (req, res) {
   const db = dbService.getDbServiceInstance();
   const string = req.query.cities;
@@ -41,23 +42,23 @@ router.get("/get_cities", async function (req, res) {
   }
 });
 
-router.post("/signup", async (req, res) => {
-  const { email, name, price, password, region } = req.body;
-  let sqlGuides = `INSERT INTO guides(email, password) VALUES ('${email}',MD5('${password}'))`;
-  await db.query(sqlGuides);
-
-  let sqlGuideID = `SELECT guide_id FROM guides WHERE email = '${email}'`;
-  const guide_id = (await db.query(sqlGuideID))[0].guide_id;
-  console.log("guide id: " + guide_id);
-
-  req.body.region.forEach(async (region) => {
-    await db.query(`INSERT INTO guides_regions(guide_id, region) VALUES ('${guide_id}','${region}') `);
-  });
-
-  await db.query(`INSERT INTO guides_data(guide_id, name, price) VALUES ('${guide_id}', '${name}', '${price}')`);
-
-  res.redirect("/signup");
+router.post("/signup", requireEmail, body("email").isEmail, validateRequestSchema, (req, res) => {
+  res.sendStatus(200);
 });
+
+// const { email, name, price, password, region } = req.body;
+// let sqlGuides = `INSERT INTO guides(email, password) VALUES ('${email}',MD5('${password}'))`;
+// await db.query(sqlGuides);
+
+// let sqlGuideID = `SELECT guide_id FROM guides WHERE email = '${email}'`;
+// const guide_id = (await db.query(sqlGuideID))[0].guide_id;
+// console.log("guide id: " + guide_id);
+
+// req.body.region.forEach(async (region) => {
+//   await db.query(`INSERT INTO guides_regions(guide_id, region) VALUES ('${guide_id}','${region}') `);
+// });
+
+// await db.query(`INSERT INTO guides_data(guide_id, name, price) VALUES ('${guide_id}', '${name}', '${price}')`);
 
 // email, MD5 password => guides
 // area, guide_id => guides_areas
