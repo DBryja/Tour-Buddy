@@ -17,20 +17,27 @@
   <body>
     <h1>GUIDE REGISTER</h1>
     <form method="POST" autocmoplete="off">
-      <input type="text" placeholder="e-mail" class="email" name="email" required />
-      <input type="text" placeholder="nazwa" class="name" name="name" required />
-      <input type="number" placeholder="cena" class="price" name="price" required />
-      <input type="password" placeholder="hasło" class="password" name="password" required />
-      <input type="password" placeholder="powtórz hasło" class="password" name="confirm" required />
+      <input type="text" placeholder="e-mail" class="email" name="email" required value="test777@test.com" />
+      <input type="text" placeholder="nazwa" class="name" name="name" required value="test777" />
+      <input type="number" placeholder="cena" class="price" name="price" required value="15" />
+      <input type="password" placeholder="hasło" class="password" name="password" required value="test123456789" />
+      <input
+        type="password"
+        placeholder="powtórz hasło"
+        class="password"
+        name="passwordConfirmation"
+        required
+        value="test123456789"
+      />
       <div id="counties_searchbars">
         <div class="autocomplete_box">
-          <input type="text" class="county_autocomplete county" placeholder="county" />
+          <input type="text" class="county_autocomplete county" placeholder="county" name="county" value="żywiecki" />
           <div class="counties_container"></div>
         </div>
       </div>
       <div id="cities_searchbars">
         <div class="autocomplete_box">
-          <input type="text" class="city_autocomplete city" placeholder="city" />
+          <input type="text" class="city_autocomplete city" placeholder="city" name="city" value="żywiec" />
           <div class="cities_container"></div>
         </div>
       </div>
@@ -44,7 +51,7 @@
       //county SearchBars service
       let countiesSearchBars = document.querySelectorAll(".county_autocomplete");
       let citiesSearchBars = document.querySelectorAll(".city_autocomplete");
-      // fdasdada
+
       function autocompleteSearch(type, searchBox, query = "") {
         fetch(`/get_${type}?${type}=${query}`)
           .then(function (response) {
@@ -52,7 +59,13 @@
           })
           .then(function (responseData) {
             if (responseData.length > 0) {
+              let cities = [];
               responseData.forEach((item) => {
+                cities.push(item);
+              });
+              cities = [...new Set(cities)];
+              cities.forEach((item) => {
+                console.log(item);
                 const row = document.createElement("p");
                 row.classList.add("autocomplete_item");
                 row.textContent = item;
@@ -74,11 +87,10 @@
             countdown = setTimeout(() => {
               if (e.target.value.length > 1) {
                 const text = e.target.value;
-                console.log(text);
                 e.target.nextElementSibling.textContent = "";
                 autocompleteSearch(type, e.target.nextElementSibling, text);
               }
-            }, 300);
+            }, 400);
           });
         });
       }
@@ -93,7 +105,7 @@
         if (lastItem.firstElementChild.value) {
           acBox.classList.add("autocomplete_box", "county_box");
           acBox.innerHTML = `
-        <input type="text" class="county_autocomplete county" placeholder="county" />
+        <input type="text" class="county_autocomplete county" placeholder="county" name="county"/>
         <div class="counties_container"></div>
         `;
           document.querySelector("#counties_searchbars").appendChild(acBox);
@@ -115,7 +127,7 @@
           const acBox = document.createElement("div");
           acBox.classList.add("autocomplete_box", "city_box");
           acBox.innerHTML = `
-        <input type="text" class="city_autocomplete city" placeholder="city" />
+        <input type="text" class="city_autocomplete city" placeholder="city" name="city"/>
         <div class="cities_container"></div>
         `;
           document.querySelector("#cities_searchbars").appendChild(acBox);
