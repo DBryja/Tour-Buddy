@@ -222,12 +222,12 @@ export class dbService {
   }
   async getCounty(name) {
     let sql = `SELECT ID FROM powiaty WHERE nazwa = "${name}"`;
-    const id = this.queryHandling(sql);
-    return id[0];
+    const id = await this.queryHandling(sql);
+    return id[0] ? true : false;
   }
   async getCity(name) {
     let sql = `SELECT ID FROM miasta WHERE nazwa = "${name}"`;
-    const id = this.queryHandling(sql);
-    return id[0];
+    const id = await this.queryHandling(sql);
+    return id[0] ? true : false;
   }
 }

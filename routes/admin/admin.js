@@ -1,7 +1,6 @@
 import express, { query, response } from "express";
 // import { makeDb } from "../../repositories/db.js";
 import { dbService } from "../../repositories/dbservice.js";
-
 const router = express.Router();
 
 // login as an administrator

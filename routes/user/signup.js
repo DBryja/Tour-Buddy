@@ -1,7 +1,8 @@
 import express from "express";
 import { dbService } from "../../repositories/dbservice.js";
 import { body, validationResult } from "express-validator";
-import { guideValidation, requireEmail, validateRequestSchema } from "../../middleware/validators.js";
+import { guideValidation } from "../../middleware/validators.js";
+import { handleErrors } from "../../middleware/middlewares.js";
 
 const router = express.Router();
 // login as a guide
@@ -42,7 +43,7 @@ router.get("/get_cities", async function (req, res) {
   }
 });
 
-router.post("/signup", requireEmail, body("email").isEmail, validateRequestSchema, (req, res) => {
+router.post("/signup", guideValidation, handleErrors, (req, res) => {
   res.sendStatus(200);
 });
 
