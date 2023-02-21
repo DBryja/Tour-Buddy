@@ -32,7 +32,6 @@ export class dbService {
           resolve(results);
         });
       });
-      // console.log(response);
       return response;
     } catch (error) {
       console.log(error);
@@ -71,25 +70,18 @@ export class dbService {
     return hash;
   };
 
-  // let sql = `SELECT nazwa FROM powiaty`;
-  // const counties = [];
-  // const result = await this.queryHandling(sql);
-  // for (const key in result) {
-  //   console.log(result[key]["nazwa"]);
-  // }
-
   // QUERIES
 
   // returns admin_id by provided email
   async getAdminByEmail(email) {
     let sql = `SELECT admin_id FROM admins WHERE email = '${email}'`;
-    this.queryHandling(sql);
+    return await this.queryHandling(sql);
   }
 
   // get guide by email
   async getGuideByEmail(email) {
     let sql = `SELECT guide_id FROM guides WHERE email = '${email}'`;
-    this.queryHandling(sql);
+    return (await this.queryHandling(sql))[0];
   }
 
   // delete all guide details by his id

@@ -1,8 +1,8 @@
 import express from "express";
 import { dbService } from "../../repositories/dbservice.js";
 import { body, validationResult } from "express-validator";
-import { guideValidation } from "../../middleware/validators.js";
-import { handleErrors } from "../../middleware/middlewares.js";
+import { guideValidation } from "../../tools/validators.js";
+import { handleErrors } from "../../tools/middlewares.js";
 
 const router = express.Router();
 // login as a guide
