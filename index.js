@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cookieSession from "cookie-session";
 
+import { dbService } from "./repositories/dbservice.js";
 import { adminRouter } from "./routes/admin/admin.js";
 import { userRouter } from "./routes/user/signup.js";
 
