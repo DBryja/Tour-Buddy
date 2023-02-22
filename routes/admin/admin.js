@@ -1,54 +1,38 @@
-import express from "express";
-import { db } from "../../repositories/db.js";
-
+import express, { query, response } from "express";
+// import { makeDb } from "../../repositories/db.js";
+import { dbService } from "../../repositories/dbservice.js";
 const router = express.Router();
 
 // login as an administrator
 router.get("/admin", (req, res) => {
-  res.render("admin/signInTemplate");
+  res.render("admin/signInTemplate", { data: { error: false } });
 });
 
-router.post("/admin", (req, res) => {
-  const { login, password } = req.body;
+router.post("/admin", async (req, res) => {
+  const db = dbService.getDbServiceInstance();
+  const { email, password } = req.body;
 
-  let sql = `SELECT 'adminID' FROM admins WHERE login='${login}' AND password=MD5('${password}') `;
-  db.query(sql, (err, result) => {
-    if (err) {
-      res.redirect("/admin");
-      throw err;
-    }
-    console.log(req.body);
-    const data = JSON.parse(JSON.stringify(result));
-    req.session.adminID = data[0].adminID;
-    res.send(req.session.adminID);
-  });
+  let sql = `SELECT admin_id FROM admins WHERE email='${email}' AND password='${password}'`;
+  const result = await db.queryHandling(sql);
+  const guide = await db.showGuide(1);
+  console.log(guide);
+
+  if (result[0]) {
+    req.session.admin_id = result[0].admin_id;
+    res.redirect("/admin/panel");
+  } else {
+    res.render("admin/signInTemplate", { data: { error: "Zły email bądź hasło" } });
+    return;
+  }
 });
 
 // admin panel
 router.get("/admin/panel", (req, res) => {
-  res.render("admin/panelTemplate");
+  if (!req.session.admin_id) {
+    res.redirect("/admin");
+  } else {
+    res.render("admin/panelTemplate");
+  }
 });
-
-router.post("/admin/panel", (req, res) => {
-  res.send(req.body);
-});
-
-// if (!req.session.adminID) {
-//    return res.redirect("/admin");
-//  } else {
-//    next();
-//  }
-
-// router.post(
-//    "/signup",
-//    [requireEmail, requirePassword, requireConfirm],
-//    handleErrors(signupTemplate),
-//    async (req, res) => {
-//      const { email, password } = req.body;
-//      const user = await usersRepo.create({ email, password });
-//      req.session.userId = user.id;
-//      res.redirect("/admin/products");
-//    }
-//  );
 
 export const adminRouter = router;
