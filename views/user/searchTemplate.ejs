@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        background-color: #353535;
+      }
+      .uResult {
+        border: 1px solid black;
+      }
+    </style>
+    <% const renderGuide = (guide) => { %>
+    <div class="uResult">
+      <p class="uResult__name">
+        <span class="name__nick"><%= guide.nickname %></span>
+        <span class="name__fullname"><%= guide.fullname %></span>
+      </p>
+      <p class="uResult__regs">
+        <% guide.regs.forEach(item =>{ %> <span class="regs__reg"> <%= item %></span> <% }) %>
+      </p>
+      <p class="uResult__cities">
+        <% guide.cities.forEach(item =>{ %> <span class="cities__city"> <%= item %></span> <% }) %>
+      </p>
+      <p class="uResult__desc"><%= guide.desc %></p>
+    </div>
+    <% } %> <% const renderError = (error) =>{ %>
+    <div>
+      <p>Nie znaleziono odpowiedniego przewodnika :c</p>
+    </div>
+    <%} %>
+  </head>
+  <body>
+    <h1>SEARCH</h1>
+    <form method="POST">
+      <div class="autocomplete_box">
+        <input type="text" class="county_autocomplete county" placeholder="county" name="county" autocomplete="off" />
+        <div class="counties_container"></div>
+      </div>
+      <div class="autocomplete_box">
+        <input type="text" class="city_autocomplete city" placeholder="city" name="city" autocomplete="off" />
+        <div class="cities_container"></div>
+      </div>
+      <input type="submit" value="FILTRUJ" />
+    </form>
+
+    <% if(error) { %> <%= renderError() %> <% }%>
+
+    <!-- <form method="POST">
+      <input type="text" placeholder="login" class="login" name="login" />
+      <input type="text" placeholder="password" class="password" name="password" />
+      <button>submit</button>
+    </form> -->
+
+    <!-- SCRIPTS -->
+    <% for (let item of guides) { %> <%= renderGuide(item) %> <% } %>
+    <!--  -->
+    <% if (typeof libs !== 'undefined') { %> <% for (let lib of libs) { %>
+    <script src="/libs/<%= lib %>.js" type="text/javascript"></script>
+    <% } } %>
+
+    <script>
+      const countySearchbar = document.querySelectorAll(".county_autocomplete");
+      const citySearchbar = document.querySelectorAll(".city_autocomplete");
+
+      SearchbarsForeach(countySearchbar, "counties");
+      SearchbarsForeach(citySearchbar, "cities");
+    </script>
+  </body>
+</html>

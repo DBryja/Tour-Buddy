@@ -19,7 +19,7 @@
   </head>
   <body>
     <h1>GUIDE REGISTER</h1>
-    <form method="POST" autocmoplete="off">
+    <form method="POST">
       <input type="text" placeholder="e-mail" class="email" name="email" required />
       <p class="error"><%= getError("email")%></p>
       <input type="text" placeholder="nazwa" class="name" name="name" required />
@@ -50,58 +50,16 @@
     <button class="county_remove">odejmij powiat</button>
     <button class="city_add">dodaj miasto</button>
     <button class="city_remove">odejmij miasto</button>
+
+    <!-- SCRIPTS -->
+    <% if (typeof libs !== 'undefined') { %> <% for (let lib of libs) { %>
+    <script src="/libs/<%= lib %>.js" type="text/javascript"></script>
+    <% } %> <% } %>
     <script>
       //county Searchbars service
       let countiesSearchbars = document.querySelectorAll(".county_autocomplete");
       let citiesSearchbars = document.querySelectorAll(".city_autocomplete");
 
-      function autocompleteSearch(type, searchBox, query = "") {
-        fetch(`/get_${type}?${type}=${query}`)
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (responseData) {
-            if (responseData.length > 0) {
-              let cities = [];
-              responseData.forEach((item) => {
-                cities.push(item);
-              });
-              cities = [...new Set(cities)];
-              searchBox.textContent = "";
-              cities.forEach((item) => {
-                const row = document.createElement("p");
-                row.classList.add("autocomplete_item");
-                row.textContent = item;
-                searchBox.appendChild(row);
-                row.addEventListener("click", (e) => {
-                  const acBox = e.target.parentElement.previousElementSibling;
-                  acBox.value = e.target.textContent;
-                  searchBox.textContent = "";
-                });
-              });
-            }
-          });
-      }
-      function SearchbarsForeach(group, type) {
-        let countdown;
-        const runSearch = (e) => {
-          clearTimeout(countdown);
-          countdown = setTimeout(() => {
-            if (e.target.value.length > 1) {
-              const text = e.target.value;
-              e.target.nextElementSibling.textContent = "";
-              autocompleteSearch(type, e.target.nextElementSibling, text);
-            }
-            if (e.target.value.length < 2) {
-              e.target.nextElementSibling.textContent = "";
-            }
-          }, 500);
-        };
-
-        group.forEach((searchBar) => {
-          searchBar.addEventListener("input", runSearch);
-        });
-      }
       SearchbarsForeach(countiesSearchbars, "counties");
       SearchbarsForeach(citiesSearchbars, "cities");
 

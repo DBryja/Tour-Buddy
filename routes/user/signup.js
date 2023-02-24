@@ -7,7 +7,7 @@ import { handleErrors } from "../../tools/middlewares.js";
 const router = express.Router();
 
 router.get("/signup", async (req, res) => {
-  res.render("user/signupTemplate.ejs");
+  res.render("user/signupTemplate.ejs", { libs: ["tools"] });
 });
 
 router.get("/get_counties", async function (req, res) {
@@ -30,7 +30,7 @@ router.get("/get_cities", async function (req, res) {
 router.post("/signup", guideValidation, handleErrors, async (req, res) => {
   const db = dbService.getDbServiceInstance();
   const rbody = req.body;
-  await db.createGuide(rbody.email, rbody.password, rbody.nickname, rbody.county, rbody.city);
+  await db.createGuide(rbody.email, rbody.password, rbody.nickname, rbody.fullname, rbody.county, rbody.city);
 
   res.sendStatus(200);
 });

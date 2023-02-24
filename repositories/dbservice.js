@@ -85,20 +85,15 @@ export class dbService {
     return (await this.queryHandling(sql))[0];
   }
 
-  // delete all guide details by his id
-  // async deleteGuide(id){
-
-  // }
-
   // GUIDE CREATION
-  async createGuide(email, password, nickname, regions, cities) {
+  async createGuide(email, password, nickname, fullname = "", regions, cities) {
     // create user inside guides table
     const hashedPswd = this.hashPassword(password);
     let sql = `INSERT INTO guides(email, password) VALUES ("${email}","${hashedPswd}")`;
     this.queryHandling(sql);
     // get an id of the new created guide
     const id = (await this.getGuideByEmail(email)).guide_id;
-    let sql2 = `INSERT INTO guides_data(guide_id, nickname) VALUES ("${id}","${nickname}" )`;
+    let sql2 = `INSERT INTO guides_data(guide_id, nickname, fullname) VALUES ("${id}","${nickname}", "${fullname}" )`;
     this.queryHandling(sql2);
     // insert into regions
     regions = intoArray(regions);
@@ -131,45 +126,50 @@ export class dbService {
     let sql = `Select password FROM ${table} WHERE email = "${email}"`;
     const hashedPassword = (await this.queryHandling(sql))[0].password;
     const isMatch = bcrypt.compareSync(pswd, hashedPassword);
-    console.log(isMatch);
   }
 
   // returns guide_id by provided filters
-  async getGuideBy(name = "", lang = "", city = "", region = "") {
+  async getGuideBy(filters) {
     let joins = ``;
     let conditions = `WHERE 1=1 `;
     // building sql query
-    if (name) {
+    if (filters.fullname) {
       joins += `
       LEFT JOIN guides_data  AS gd
       ON (g.guide_id = gd.guide_id)`;
-      conditions += `AND gd.first_name = "${name}"`;
+      conditions += `AND gd.fullname= "${filters.fullname}"`;
     }
-    if (lang) {
-      joins += `
-      LEFT JOIN guides_languages AS gl
-      ON (g.guide_id = gl.guide_id)`;
-      conditions += `AND gl.language = "${lang}"`;
-    }
-    if (city) {
+    // if (lang) {
+    //   joins += `
+    //   LEFT JOIN guides_languages AS gl
+    //   ON (g.guide_id = gl.guide_id)`;
+    //   conditions += `AND gl.language = "${lang}"`;
+    // }
+    if (filters.city) {
       joins += `
       LEFT JOIN guides_cities AS gc
       ON (g.guide_id = gc.guide_id)`;
-      conditions += `AND gc.city = "${city}"`;
+      conditions += `AND gc.city = "${filters.city}"`;
     }
-    if (region) {
+    if (filters.region) {
       joins += `
       LEFT JOIN guides_regions AS gr
       ON (g.guide_id = gr.guide_id)`;
-      conditions += `AND gr.region = "${region}"`;
+      conditions += `AND gr.region = "${filters.region}"`;
     }
 
     let query = `
     SELECT g.guide_id FROM guides AS g ${joins}
       ${conditions}
       ;`;
-    // console.log(sql);
-    this.queryHandling(query);
+
+    const result = await this.queryHandling(query);
+    return result;
+  }
+  async getAllGuides() {
+    let sql = `SELECT guide_id FROM guides`;
+    const result = await this.queryHandling(sql);
+    return result;
   }
 
   // returns all information about a guide with provided id
@@ -177,16 +177,16 @@ export class dbService {
     // queries for all guide information
     const queries = {
       // gd.p_img
-      gdata: `SELECT gd.first_name, gd.second_name, gd.desc FROM guides AS g 
+      gdata: `SELECT gd.nickname, gd.fullname, gd.desc FROM guides AS g 
       LEFT JOIN guides_data AS gd
       ON (g.guide_id = gd.guide_id)
       WHERE g.guide_id = ${id};`,
       // guide languages list
-      glang: `
-      SELECT gl.language FROM guides AS g 
-      LEFT JOIN guides_languages AS gl
-      ON (g.guide_id = gl.guide_id)
-      WHERE g.guide_id = ${id};`,
+      // glang: `
+      // SELECT gl.language FROM guides AS g
+      // LEFT JOIN guides_languages AS gl
+      // ON (g.guide_id = gl.guide_id)
+      // WHERE g.guide_id = ${id};`,
       // guide regions list
       greg: `
       SELECT gr.region FROM guides AS g 
@@ -202,7 +202,7 @@ export class dbService {
     };
 
     const guide = {
-      langs: [],
+      // langs: [],
       regs: [],
       cities: [],
     };
@@ -215,9 +215,9 @@ export class dbService {
     }
 
     // languages, regions, cities
-    await this.multiResult(queries["glang"], guide, "langs");
-    await this.multiResult(queries["greg"], guide, "regs");
-    await this.multiResult(queries["gcities"], guide, "cities");
+    // await this.multiResultObject(queries["glang"], guide, "langs");
+    await this.multiResultObject(queries["greg"], guide, "regs");
+    await this.multiResultObject(queries["gcities"], guide, "cities");
 
     return guide;
   }
