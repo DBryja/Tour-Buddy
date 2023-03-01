@@ -86,7 +86,7 @@ export class dbService {
   }
 
   // GUIDE CREATION
-  async createGuide(email, password, nickname, fullname = "", regions, cities) {
+  async createGuide(email, password, nickname, regions, cities, profile_pic, fullname = "") {
     // create user inside guides table
     const hashedPswd = this.hashPassword(password);
     let sql = `INSERT INTO guides(email, password) VALUES ("${email}","${hashedPswd}")`;
@@ -107,15 +107,21 @@ export class dbService {
       let sql4 = `INSERT INTO guides_cities (guide_id, city) VALUES ("${id}", "${city}")`;
       this.queryHandling(sql4);
     });
+    // insert into profile_pic
+    let sql6 = `INSERT INTO guides_ppic (guide_id) VALUES ("${id}")`;
+    console.log(profile_pic);
+    if (profile_pic) sql6 = `INSERT INTO guides_ppic (guide_id, profile_pic) VALUES ("${id}", "${profile_pic}")`;
+    this.queryHandling(sql6);
   }
   // DELETE GUIDE
   async deleteGuide(email) {
     const id = (await this.getGuideByEmail(email)).guide_id;
     let sql = `
-    DELETE guides_cities, guides_regions, guides_data, guides_languages FROM guides 
+    DELETE guides_cities, guides_regions, guides_data, guides_ppic, guides_languages FROM guides 
     LEFT JOIN guides_cities ON (guides_cities.guide_id = guides.guide_id) AND guides_cities.guide_id = "${id}"
     LEFT JOIN guides_data ON (guides_data.guide_id = guides.guide_id) AND guides_data.guide_id = "${id}"
     LEFT JOIN guides_regions ON (guides_regions.guide_id = guides.guide_id) AND guides_regions.guide_id = "${id}"
+    LEFT JOIN guides_ppic ON (guides_ppic.guide_id = guides.guide_id) AND guides_ppic.guide_id = "${id}"
     LEFT JOIN guides_languages ON (guides_languages.guide_id = guides.guide_id) AND guides_languages.guide_id = "${id}";
     `;
     this.queryHandling(sql);
@@ -151,11 +157,11 @@ export class dbService {
       ON (g.guide_id = gc.guide_id)`;
       conditions += `AND gc.city = "${filters.city}"`;
     }
-    if (filters.region) {
+    if (filters.county) {
       joins += `
       LEFT JOIN guides_regions AS gr
       ON (g.guide_id = gr.guide_id)`;
-      conditions += `AND gr.region = "${filters.region}"`;
+      conditions += `AND gr.region = "${filters.county}"`;
     }
 
     let query = `
@@ -176,7 +182,6 @@ export class dbService {
   async showGuide(id) {
     // queries for all guide information
     const queries = {
-      // gd.p_img
       gdata: `SELECT gd.nickname, gd.fullname, gd.desc FROM guides AS g 
       LEFT JOIN guides_data AS gd
       ON (g.guide_id = gd.guide_id)
@@ -199,6 +204,13 @@ export class dbService {
       LEFT JOIN guides_cities AS gc
       ON (g.guide_id = gc.guide_id)
       WHERE g.guide_id = ${id};`,
+      // guide ppic
+      gppic: `
+      SELECT gp.profile_pic FROM guides AS g 
+      LEFT JOIN guides_ppic AS gp
+      ON (g.guide_id = gp.guide_id)
+      WHERE g.guide_id = ${id};
+      `,
     };
 
     const guide = {
@@ -213,6 +225,9 @@ export class dbService {
     for (const key in data) {
       guide[key] = data[key];
     }
+
+    // image
+    guide.profile_pic = (await this.queryHandling(queries["gppic"]))[0].profile_pic;
 
     // languages, regions, cities
     // await this.multiResultObject(queries["glang"], guide, "langs");
@@ -237,7 +252,7 @@ export class dbService {
     return counties;
   }
   async getCities(text) {
-    let sql = `SELECT nazwa FROM miasta WHERE nazwa LIKE '%${text}%' LIMIT 10`;
+    let sql = `SELECT nazwa FROM miasta WHERE nazwa LIKE '%${text}%' LIMIT 50`;
     const cities = await this.multiResultArray(sql, "nazwa");
     return cities;
   }

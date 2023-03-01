@@ -17,7 +17,7 @@ router.get("/search", async (req, res) => {
     const result = await db.showGuide(id);
     guides.push(result);
   }
-  res.render("user/searchTemplate.ejs", { guides: guides, libs: ["tools"] });
+  res.render("user/searchTemplate.ejs", { guides: guides, error: false, libs: ["tools"] });
 });
 
 router.post("/search", async (req, res) => {

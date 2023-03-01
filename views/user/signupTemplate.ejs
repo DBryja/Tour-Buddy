@@ -19,10 +19,10 @@
   </head>
   <body>
     <h1>GUIDE REGISTER</h1>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
       <input type="text" placeholder="e-mail" class="email" name="email" required />
       <p class="error"><%= getError("email")%></p>
-      <input type="text" placeholder="nazwa" class="name" name="name" required />
+      <input type="text" placeholder="nazwa" class="nickname" name="nickname" required />
       <p class="error"><%= getError("name")%></p>
       <!-- <input type="number" placeholder="cena" class="price" name="price" required value="15" /> -->
       <!-- <p class="error"><%= getError("price")%></p> -->
@@ -30,6 +30,7 @@
       <p class="error"><%= getError("password")%></p>
       <input type="password" placeholder="powtórz hasło" class="password" name="passwordConfirmation" required />
       <p class="error"><%= getError("passwordConfirmation")%></p>
+      <input type="file" name="profile_pic" accept=".jpg, .jpeg, .png" />
       <div id="counties_Searchbars">
         <p class="error"><%= getError("county")%></p>
         <div class="autocomplete_box">

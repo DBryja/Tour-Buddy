@@ -19,6 +19,11 @@
         <span class="name__nick"><%= guide.nickname %></span>
         <span class="name__fullname"><%= guide.fullname %></span>
       </p>
+      <% if(guide.profile_pic){%>
+      <div class="uImage">
+        <img src="data:image/png;base64, <%= guide.profile_pic %>" />
+      </div>
+      <% }%>
       <p class="uResult__regs">
         <% guide.regs.forEach(item =>{ %> <span class="regs__reg"> <%= item %></span> <% }) %>
       </p>
