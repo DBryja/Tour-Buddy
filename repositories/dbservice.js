@@ -59,10 +59,9 @@ export class dbService {
     return arr;
   }
 
-  async decryptPassword(password, hashedPassword) {
-    bcrypt.compare(password, hashedPassword, function (err, isMatch) {
-      return isMatch;
-    });
+  // compare passwords from input and db
+  async comparePassword(password, hashedPassword) {
+    return await bcrypt.compare(password, hashedPassword);
   }
 
   hashPassword = (pswd) => {
@@ -82,6 +81,10 @@ export class dbService {
   // get guide by email
   async getGuideByEmail(email) {
     let sql = `SELECT guide_id FROM guides WHERE email = '${email}'`;
+    return (await this.queryHandling(sql))[0];
+  }
+  async getGuideLoginData(email) {
+    let sql = `SELECT * FROM guides WHERE email = '${email}'`;
     return (await this.queryHandling(sql))[0];
   }
 

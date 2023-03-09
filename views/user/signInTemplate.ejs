@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #6b6b6b;
+      }
+    </style>
+    <!-- function to find form post errors  -->
+    <% function getError(prop){ try{ const searchIndex = errors.findIndex((item) => item.param == prop);
+    return(errors[searchIndex].msg); } catch(err){ return ""; } } %>
+  </head>
+  <body>
+    <h1>GUIDE SIGN IN</h1>
+    <form method="POST">
+      <p class="error"><%= getError("invalid")%></p>
+      <input type="text" placeholder="e-mail" class="email" name="email" required />
+      <input type="password" placeholder="hasło" class="password" name="password" required />
+      <!-- <p class="error"><%= getError("password")%></p> -->
+      <button>zaloguj</button>
+    </form>
+    <!-- SCRIPTS -->
+    <% if (typeof libs !== 'undefined') { for (let lib of libs) { %>
+    <script src="/libs/<%= lib %>.js" type="text/javascript"></script>
+    <% } } %>
+    <script></script>
+  </body>
+</html>

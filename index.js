@@ -4,8 +4,9 @@ import cookieSession from "cookie-session";
 
 import { dbService } from "./repositories/dbservice.js";
 import { adminRouter } from "./routes/admin/admin.js";
-import { userRouter } from "./routes/user/signup.js";
 import { mainRouter } from "./routes/user/main.js";
+import { guideSignInRouter } from "./routes/user/signin.js";
+import { guideSignUpRouter } from "./routes/user/signup.js";
 
 const app = express();
 app.use(express.static("public"));
@@ -13,11 +14,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
   cookieSession({
-    keys: ["oufhv8742hn"],
+    keys: ["jgfsaduigibs1243"],
   })
 );
+
 app.use(adminRouter);
-app.use(userRouter);
+app.use(guideSignInRouter);
+app.use(guideSignUpRouter);
 app.use(mainRouter);
 
 app.set("view engine", "ejs");

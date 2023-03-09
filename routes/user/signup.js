@@ -1,17 +1,15 @@
 import express from "express";
 import { validationResult } from "express-validator";
 import multer from "multer";
-import { Blob } from "buffer";
 
 import { dbService } from "../../repositories/dbservice.js";
 import { guideValidation } from "../../tools/validators.js";
 import { handleErrors } from "../../tools/middlewares.js";
-import { profile } from "console";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.get("/signup", async (req, res) => {
+router.get("/guide/signup", async (req, res) => {
   res.render("user/signupTemplate.ejs", { libs: ["tools"] });
 });
 
@@ -32,7 +30,7 @@ router.get("/get_cities", async function (req, res) {
   }
 });
 
-router.post("/signup", upload.single("profile_pic"), guideValidation, handleErrors, async (req, res) => {
+router.post("/guide/signup", upload.single("profile_pic"), guideValidation, handleErrors, async (req, res) => {
   if (validationResult(req).isEmpty()) {
     const db = dbService.getDbServiceInstance();
     const { email, password, nickname, county, city, fullname } = req.body;
@@ -54,4 +52,8 @@ router.get("/testdelete", async (req, res) => {
   res.sendStatus(200);
 });
 
-export const userRouter = router;
+router.get("/test", (req, res) => {
+  res.render("user/test.ejs");
+});
+
+export const guideSignUpRouter = router;
